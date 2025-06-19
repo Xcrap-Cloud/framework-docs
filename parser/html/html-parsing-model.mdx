@@ -1,0 +1,80 @@
+## O que é o HtmlParsingModel?
+
+`HtmlParsingModel` é a classe que implementa a interface `ParsingModel` para extração de dados de conteúdos HTML. Ela permite definir como os dados devem ser extraídos de um HTML, utilizando seletores CSS e extratores personalizados.
+
+## Exemplo Básico de Uso
+
+Para usar o `HtmlParsingModel`, você deve instanciá-lo e definir as regras de extração. Veja um exemplo:
+
+```ts
+import { HtmlParsingModel, extractInnerText, extractHref } from "@xcrap/parser"
+
+const parsingModel = new HtmlParsingModel({
+    title: {
+        query: "title",
+        extractor: extractInnerText
+    },
+    links: {
+        query: "a",
+        extractor: extractHref,
+        multiple: true
+    }
+})
+```
+
+Neste exemplo, estamos criando um modelo de parsing para extrair o título da página e todos os links presentes no corpo do HTML.
+
+## Estrutura do Shape
+
+O shape do `HtmlParsingModel` é definido como um objeto onde cada chave representa um campo a ser extraído do HTML. Cada campo é configurado com uma `query` e um `extractor`. A `query` é um seletor CSS que identifica os elementos HTML a serem extraídos, o `extractor` é uma função que define como extrair o valor desejado desses elementos.
+
+```ts
+const parsingModel = new HtmlParsingModel({
+    fieldName: {
+        query: "css-selector",
+        extractor: customExtractorFunction,
+    }
+})
+```
+
+Há também a opção de definir um valor padrão para o campo, caso ele não seja encontrado no HTML, usando a propriedade `default`.
+
+
+```ts
+import { HtmlParsingModel, extract } from "@xcrap/parser"
+
+const parsingModel = new HtmlParsingModel({
+    fieldName: {
+        query: "css-selector",
+        extractor: extract(...),
+        default: "default value" // Valor padrão caso o campo não seja encontrado
+    }
+})
+```
+
+## Campos Avançados
+
+Você pode definir campos avançados no `HtmlParsingModel` para extrair dados mais complexos. Por exemplo, você pode usar o `multiple` para indicar que um campo pode ter múltiplos valores, e/ou usar o `model` para aninhar outros modelos de parsing. Caso você defina um campo `model`, o extractor se torna opcional, pois você só irá precisar dele em casos onde você precisa extrair um JSON de uma tag `<script>` ou algo do tipo.
+
+```ts
+import { HtmlParsingModel, extract } from "@xcrap/parser"
+
+const parsingModel = new HtmlParsingModel({
+    fieldName: {
+        query: "css-selector",
+        multiple: true, // Indica que será tratado como um array
+        model: new HtmlParsingModel({ // Aninhando outro modelo de parsing
+            subField: {
+                query: "sub-css-selector",
+                extractor: extract(...)
+            }
+        })
+    }
+})
+```
+
+## Dicas e Boas Práticas
+
+- Prefira instanciar o `HtmlParsingModel` em constantes separadas para cada modelo de parsing que você precisar, isso ajuda a manter o código mais organizado, legível e reutilizável.
+- Caso não queria ficar lidando com a função de mais baixo nível `extract`, utilize os extratores já disponíveis no pacote, como `extractInnerText`, `extractHref`, etc., para facilitar a extração de dados comuns.
+

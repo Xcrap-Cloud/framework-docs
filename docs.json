@@ -11,54 +11,30 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Core",
-        "groups": [
-          {
-            "group": "Começar",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Essentials",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Parser",
         "groups": [
           {
-            "group": "Introduction",
+            "group": "Introdução",
             "pages": [
               "parser/introduction"
             ]
           },
           {
-            "group": "HTML Parsing",
+            "group": "Parsing de HTML",
             "pages": [
               "parser/html/html-parser",
-              "parser/html/parsing-model"
+              "parser/html/html-parsing-model"
             ]
           },
           {
-            "group": "JSON Parsing",
+            "group": "Parsing de JSON",
             "pages": [
               "parser/json/json-parser",
               "parser/json/parsing-model"
             ]
           },
           {
-            "group": "Custom Parsing",
+            "group": "Parsing Personalizado",
             "pages": [
               "parser/custom/custom-parser",
               "parser/custom/parsing-model"

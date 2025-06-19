@@ -1,1 +1,97 @@
-# HtmlParser
+`JsonParser` é uma classe para extração de dados de arquivos ou strings JSON, baseada em queries [JMESPath](https://jmespath.org/). Ela permite acessar valores simples ou aninhados de forma declarativa, sem precisar navegar manualmente pelo objeto.
+
+## Exemplo Básico de Uso
+
+```ts
+import { JsonParser } from "@xcrap/parser"
+
+const json = JSON.stringify({ name: "Marcuth", age: 19 })
+const parser = new JsonParser(json)
+
+console.log(parser.extract("name")) // "Marcuth"
+console.log(parser.extract("age"))  // 19
+console.log(parser.extract("notfound")) // null
+```
+
+Você pode acessar propriedades aninhadas:
+
+```ts
+const json = JSON.stringify({ user: { details: { username: "marcuth" } } })
+const parser = new JsonParser(json)
+console.log(parser.extract("user.details.username")) // "marcuth"
+```
+
+## Uso com JsonParsingModel
+
+Para extração estruturada e múltiplos campos, utilize o `JsonParsingModel`:
+
+```ts
+import { JsonParsingModel } from "@xcrap/parser"
+
+const json = JSON.stringify({ name: "Marcuth", age: 19, contact: { email: "test@email.com" } })
+const model = new JsonParsingModel({
+  username: { query: "name" },
+  email: { query: "contact.email" },
+  age: { query: "age" }
+})
+
+const data = await model.parse(json)
+// data: { username: "Marcuth", email: "test@email.com", age: 19 }
+```
+
+Campos não encontrados retornam `null` por padrão, ou o valor definido em `default`:
+
+```ts
+const model = new JsonParsingModel({
+  username: { query: "name" },
+  email: { query: "contact.email", default: "sem email" }
+})
+
+const data = await model.parse('{"name": "Marcuth"}')
+// data: { username: "Marcuth", email: "sem email" }
+```
+
+## Campos Avançados e Modelos Aninhados
+
+Você pode aninhar modelos para extrair objetos complexos ou até mesmo HTML dentro de um JSON:
+
+```ts
+import { JsonParsingModel, HtmlParsingModel } from "@xcrap/parser"
+import { extractInnerText } from "@xcrap/parser"
+
+const json = '{ "html": "<p>text</p>" }'
+const model = new JsonParsingModel({
+  html: {
+    query: "html",
+    model: new HtmlParsingModel({
+      text: { query: "p", extractor: extractInnerText }
+    })
+  }
+})
+const data = await model.parse(json)
+// data: { html: { text: "text" } }
+```
+
+> Se o valor não for string ao usar um model `HtmlParsingModel`, será lançado um erro.
+
+## API
+
+- `new JsonParser(jsonString: string)`
+- `parser.extract(query: string): any` — retorna o valor ou `null` se não encontrado
+- `new JsonParsingModel(shape)`
+- `model.parse(jsonString: string): Promise<any>`
+
+## Dicas e Boas Práticas
+
+- Use queries JMESPath para acessar qualquer nível do JSON.
+- Utilize `default` para valores opcionais.
+- Para listas, utilize o parâmetro `multiple` e trate o resultado como array.
+
+## FAQ / Solução de Problemas
+
+- **O que acontece se o JSON for inválido?**
+  Será lançado um erro `SyntaxError`.
+- **O que acontece se o campo não existir?**
+  Retorna `null` ou o valor de `default` se definido.
+- **Posso aninhar modelos?**
+  Sim, inclusive modelos de HTML para campos string contendo HTML.
