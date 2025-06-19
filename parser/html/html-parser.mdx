@@ -1,0 +1,118 @@
+HtmlParser é uma classe que extende de `Parser` que implementa métodos de extração de dados para arquivos e conteúdos HTML. O que funciona por baixo dos panos é o `node-html-parser`, que é um parser de HTML muito rápido e leve, que permite a extração de dados de forma eficiente.
+
+## 🛠️ Como Usar
+
+Bem, existem algumas maneiras de usar este mecanismo de parsing, o mais recomendado é usar o `HtmlParsingModel`, que é um modelo declarativo que permite definir como os dados devem ser extraídos de um HTML, veja um exemplo abaixo:
+
+### Utilizando o `HtmlParsingModel`
+
+```typescript
+import { HtmlParsingModel, HtmlParser, extractInnerText, extractHref } from "@xcrap/parser"
+
+const html = `
+  <div>
+    <h1>Authors</h1>
+    <ul>
+        <li>
+            <span class="author-name">Marcuth</span>
+            <span class="author-role">Developer</span>
+            <a class="author-github" href="https://github.com/marcuth">GitHub</a>
+        </li>
+    </ul>
+  </div>
+`
+
+const parsingModel = new HtmlParsingModel({
+    authors: {
+        query: "ul li",
+        multiple: true,
+        name: {
+            query: ".author-name",
+            extractor: extractInnerText
+        },
+        role: {
+            query: ".author-role",
+            extractor: extractInnerText
+        },
+        github: {
+            query: ".author-github",
+            extractor: extractHref
+        }
+    }
+})
+
+const parser = new HtmlParser(html)
+const data = parser.extractFirst({ model: parsingModel })
+
+console.log(data)
+```
+
+**Saída esperada**:
+
+```js
+{
+  authors: [
+        {
+            name: "Marcuth",
+            role: "Developer",
+            github: "https://github.com/marcuth"
+        }
+    ]
+}
+```
+
+Se preferir, você pode utilizar o `HtmlParsingModel` diretamente no construtor do `HtmlParser`, veja o exemplo abaixo:
+
+```typescript
+const parsingModel = parser.parse(html)
+```
+
+Fazendo isso, você deve obter o mesmo resultado, já que o `HtmlParser` faz apenas um wrapper desse método do `HtmlParsingModel`.
+
+### Utilizando o `HtmlParser` diretamente
+
+Como você recebeu um spolier do `HtmlParser` acima, você pode utilizar ele fornecendo um código HTML em formato de string e a aprtir daí ele irá fornecer métodos para que você consiga extrair dados.
+
+```ts
+import { HtmlParser } from "@xcrap/parser"
+
+const html = "<html><head><title>Título da Página</title></head><body></body></html>"
+const parser = new HtmlParser(html)
+```
+
+Mas bem, caso você precise carregar um arquivo HTML diretamente e queria evitar escrever código para ler o arquivo, você pode usar o método `loadFile` do `HtmlParser`, veja o exemplo abaixo:
+
+```ts
+import { HtmlParser } from "@xcrap/parser"
+
+;(async () => {
+    const parser = await HtmlParser.loadFile("./caminho-para-arquivo-html.html", { encoding: "utf-8" }) // Retorna uma instância de HtmlParser
+})();
+```
+
+Tendo instanciado o `HtmlParser`, você pode usar os métodos de extração de dados, como:
+
+- `extractFirst`: Recebe um `model` (parsing model) e (opcionalmente) uma `query`, caso ele encontre o o elemento, ele irá extrair os dados conforme o modelo fornecido, caso não encontre, lançará um erro. 
+- `extractMany`: Recebe um `model` (parsing model), uma `query` e (opcionalmente) um `limit`, caso ele encontre os elementos, ele irá extrair os dados conforme o modelo fornecido e retornará um array com os dados extraídos.
+- `parseFirst`: Recebe uma `query`, um `extractor` e (opcionalmente) um `default`, caso ele encontre o elemento, ele irá usar o extractor para extrair os dados e retornará o resultado. Se não encontrar e existir um valor `default` definido, retornará o `default`, se não, lançará um erro.
+- `parseMany`: Recebe uma `query`, um `extractor` e (opcionalmente) um `limit`, caso ele encontre os elementos, ele irá usar o extractor para extrair os dados e retornará um array com os resultados.
+ 
+Veja um exemplo de como extrair o título e links de um HTML usando o `HtmlParser`:
+
+```ts
+import { HtmlParser, extract } from "@xcrap/parser"
+
+;(async () => {
+    const html = `<html><head><title>Título da Página</title></head><body><a href="https://example.com/1">Link 1</a><a href="https://example.com/2">Link 2</a></body></html>`
+    const parser = new HtmlParser(html)
+
+    // extract(key: string, isAttribute?: boolean) é uma função de extração genérica, você pode usar algumas que já estão criadas e prontas para uso, importando-as do mesmo local :)
+    const title = await parser.parseFirst({ query: "title", extractor: extract("innerText") })
+
+    const links = await parser.parseMany({ query: "a", extractor: extract("href", true) })
+
+    console.log(title) // "Título da Página"
+    console.log(links) // ["https://example.com/1", "https://example.com/2"]
+})();
+````
+

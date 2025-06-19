@@ -1,0 +1,28 @@
+# O que é o Xcrap Parser?
+
+O Xcrap Parser é um pacote do framework Xcrap, desenvolvido para cuidar da parte de extração de dados de arquivos de texto (atualmente suportando apenas HTML e JSON) usando modelos declarativos.
+
+## O que é um modelo declarativo?
+
+Um modelo declarativo é uma forma de descrever o que você quer extrair de um arquivo, sem precisar escrever código imperativo para isso. Em vez de dizer "faça isso, faça aquilo", você descreve "eu quero isso, eu quero aquilo". O Xcrap Parser usa modelos declarativos para definir como os dados devem ser extraídos dos arquivos.
+
+## Como funciona o Xcrap Parser?
+
+O Xcrap Parser funciona da seguinte forma: você define qual é o modelo raiz (`JsonParsingModel`, `HtmlParsingModel`, etc.) e, a partir daí, você pode, se quiser, definir modelos filhos para criar uma árvore estruturada de extração de dados. Cada modelo filho pode ter suas próprias regras de extração, e o Xcrap Parser vai percorrer essa árvore para extrair os dados conforme definido.
+
+E sim, o Xcrap Parser é capaz de lidar com diferentes tipos de modelos, isso significa que você pode, por exemplo extrair um `<script>` de umt HTML que tenha um JSON dentro dele e usar um `JsonParsingModel` para extrair os dados desse JSON. Ou seja, você pode combinar diferentes tipos de modelos para extrair dados desde que obedençam a interface `ParsingModel`.
+
+## Quais são os modelos disponíveis?
+
+Atualmente, o Xcrap Parser oferece os seguintes modelos:
+
+- `JsonParsingModel`: Para extrair dados de conteúdos JSON.
+- `HtmlParsingModel`: Para extrair dados de conteúdos HTML.
+
+## 📦 Instalação
+
+A instalação é muito simples, você pode usar o NPM ou qualquer outro gerenciador de pacotes de sua escolha: como PNPM, Yarn, etc.
+
+```bash
+npm i @xcrap/parser
+```
