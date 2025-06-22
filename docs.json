@@ -3,9 +3,9 @@
   "theme": "mint",
   "name": "Xcrap Framework",
   "colors": {
-    "primary": "#171717",
+    "primary": "#a78bfa",
     "light": "#fafafa",
-    "dark": "#0a0a0a"
+    "dark": "#27272a"
   },
   "favicon": "/favicon.svg",
   "navigation": {
